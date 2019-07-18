@@ -1,0 +1,38 @@
+const url = "http://localhost:3000/tasks";
+
+var data = {
+    'name':'Donald',
+    'email':'Dudffdfddfdcfdffkhfdbfdfddurgr@meme.com',
+    'password':'passpass12345'
+}
+
+var task = {
+    'description':'peppe'
+}
+
+var token;
+
+
+ $.ajax({
+    url: url,
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(task),
+    dataType:'json',
+    beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZDJlZjYxMjJkYzQyYzEzNWJmYTc4YzYiLCJpYXQiOjE1NjMzNTg3Mzh9.ZpwXTkSgWAGyU9F5OIjE4fMPJHmcEwtHpU9savNjHLA');
+    },
+    success: function(data){
+        console.log(data);
+         },
+      error: function(xhr, ajaxOptions, thrownError) {
+           if (xhr.status == 200) {
+               console.log(ajaxOptions);
+           }
+           else {
+               console.log(xhr.status);
+               console.log(thrownError);
+           }
+       }
+ });
+ 
