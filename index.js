@@ -1,44 +1,39 @@
+const http = require('http')
+const path = require('path')
 const express = require('express')
-require('./db/mongoose')                    //This line ensures that the file runs and connects to the database
-const userRouter = require('./routers/user')
-const taskRouter = require('./routers/task')
+const socketio = require('socket.io')
 
 const app = express()
-const port = process.env.PORT || 3000       //port for local and production
+const server = http.createServer(app) //We created this for the purpose of passing server into socket.io
+const io = socketio(server)
 
-//Limiting what the user has access to before and after authentication
-//Middleware
-// app.use((req, res, next) => {
-//     console.log(req.method, req.path)
-//     if(req.method === 'GET'){
-//         res.send('GET requests are currently diabled')
-//     }else{
-//         next()
-//     }
-// })
+const port = 3000 || process.env.PORT
 
-//Middleware for maintainence mode
-// app.use((req, res, next) => {
-//     res.status(503).send('Site is currently under maintainence')
-// })
+const publicDir = path.join(__dirname, '../public')
+app.use(express.static(publicDir))
 
-const multer = require('multer')
-
-const upload = multer({
-    dest: 'images'
+app.get('', (req, res) => {
+    res.render('index')
 })
 
-app.post('/upload', upload.single('upload'), (req, res) => {
-    res.send()
-})
 
-app.use(express.json())
-app.use(userRouter)
-app.use(taskRouter)
+let count = 0
 
-app.listen(port, () => {
-    console.log('server is up on port ' +port)
+io.on('connection', (socket) => {
+    console.log('New websocket connection')
+
+    socket.emit('countUpdated', count)
+
+    socket.on('increment', () => {
+        count++
+        //socket.emit('countUpdated', count) //This line only emits to a particular connection, so the other connection needs to be refreshed to see the change
+        io.emit('countUpdated', count) //This one emits to every single connnection
+    })
 })
 
 
 
+
+server.listen(port, () => {
+    console.log('Running on port: ' + port)
+})
